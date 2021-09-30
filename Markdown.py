@@ -4,7 +4,9 @@ We're going to build the beginnings of a markdown processor. Markdown is a marku
 We ll provide some sample input and desired output. Dont worry too much about edge cases, but feel free to ask if you re unsure or think there s something we ought to consider.
 
 Part 1:  A markdown processor is capable of handling a multitude of string to html tag formats. For now, we just want to focus on supporting <p/>, <br/>, <blockquote/>, and <del/> tags.
-
+1. one newline -> <br />
+2. two or more newline -> new paragraph
+3. "> ": <blockquote>
 Input:
 String input = "This is a paragraph with a soft\n" + "line break.\n\n" + "This is another paragraph that has\n" +
                "> Some text that\n" + "> is in a\n" + "> block quote.\n\n" +
@@ -23,24 +25,29 @@ block quote</blockquote.> </p> <p>This is another paragraph with a
 class SamsaraSolution:
     def markdown(input: str) -> str:
         res = "<p>"
-        input = input.replace("\n", "--")
+
 
         is_new_para, block_is_active, strikethrough_began = True, False, False
         i = 0
         while i < len(input):
             ch = input[i:i+2] # the first two characters, e.g. "\n", "> ", "~~"
-
-            if ch == '--':
-                if input[i+2:i+4] == "--":
+            newline = input[i:i+1]
+            if newline == "\n":
+                cnt = 1
+                i += 1
+                while i < len(input) and input[i:i+1] == "\n":
+                    cnt += 1
+                    i += 1
+                if cnt > 1:
                     if block_is_active:
                         res += "</blockquote.>"
                         block_is_active = False
                     res += "</p>"
                     res += "<p>"
-                    i += 4
+                    i += 1
                 else:
                     res += "<br />"
-                    i += 2
+                    i += 1
             elif ch == "> ":
                 if not block_is_active:
                     res += "<blockquote.>"
